@@ -1,0 +1,3 @@
+class PuntoServicio {
+  const PuntoServicio();
+}

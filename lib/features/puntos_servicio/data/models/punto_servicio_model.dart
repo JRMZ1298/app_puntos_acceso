@@ -1,0 +1,3 @@
+class PuntoServicioModel {
+  const PuntoServicioModel();
+}
