@@ -4,7 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../domain/entities/punto_servicio.dart';
+import '../providers/filtros_provider.dart';
 import '../providers/punto_servicio_providers.dart';
+import '../widgets/barra_busqueda.dart';
+import '../widgets/filtros_sheet.dart';
 import '../widgets/punto_bottom_sheet.dart';
 
 class MapaScreen extends ConsumerWidget {
@@ -15,33 +18,63 @@ class MapaScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final puntosAsync = ref.watch(puntosServicioProvider);
+    final puntosAsync = ref.watch(puntosFiltradosProvider);
+    final filtros = ref.watch(filtrosProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Puntos de servicio')),
-      body: puntosAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Center(
-          child: Text('Ocurrió un error al cargar los puntos: $error'),
-        ),
-        data: (puntos) => FlutterMap(
-          options: const MapOptions(
-            initialCenter: _centroInicial,
-            initialZoom: 13,
+      appBar: AppBar(
+        title: const Text('Puntos de servicio'),
+        actions: [
+          IconButton(
+            icon: Badge(
+              isLabelVisible: filtros.tieneFiltrosActivos,
+              child: const Icon(Icons.filter_list),
+            ),
+            tooltip: 'Filtros',
+            onPressed: () => mostrarFiltros(context),
           ),
-          children: [
-            TileLayer(
-              // OpenStreetMap: sin API key, uso libre respetando su política de tiles.
-              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              userAgentPackageName: 'com.example.puntos_servicio_app',
+        ],
+      ),
+      body: Column(
+        children: [
+          const BarraBusqueda(),
+          Expanded(
+            child: puntosAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, stackTrace) => Center(
+                child: Text('Ocurrió un error al cargar los puntos: $error'),
+              ),
+              data: (puntos) {
+                if (puntos.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'No hay puntos que coincidan con la búsqueda o los filtros.',
+                    ),
+                  );
+                }
+                return FlutterMap(
+                  options: const MapOptions(
+                    initialCenter: _centroInicial,
+                    initialZoom: 13,
+                  ),
+                  children: [
+                    TileLayer(
+                      // OpenStreetMap: sin API key, uso libre respetando su política de tiles.
+                      urlTemplate:
+                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      userAgentPackageName: 'com.example.puntos_servicio_app',
+                    ),
+                    MarkerLayer(
+                      markers: puntos
+                          .map((punto) => _construirMarcador(context, punto))
+                          .toList(),
+                    ),
+                  ],
+                );
+              },
             ),
-            MarkerLayer(
-              markers: puntos
-                  .map((punto) => _construirMarcador(context, punto))
-                  .toList(),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
