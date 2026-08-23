@@ -1,13 +1,27 @@
 import 'package:app_puntos_acceso/features/puntos_servicio/domain/entities/punto_servicio.dart';
 
 import '../models/punto_servicio_model.dart';
+import 'punto_servicio_datasource.dart';
 
 /// Fuente de datos local (mock). Implementa la misma "forma" que tendrá
 /// más adelante el datasource remoto (que consumirá GET /puntos),
 /// para poder intercambiarlos en el repositorio sin tocar el resto de capas.
-class MockLocalDatasource {
-  List<PuntoServicioModel> obtenerPuntos() {
+class MockLocalDatasource implements PuntoServicioDatasource {
+  @override
+  Future<List<PuntoServicioModel>> obtenerPuntos() async {
+    // Simula latencia de red para que el manejo de estado (loading) sea real.
+    await Future.delayed(const Duration(milliseconds: 300));
     return _puntosMock;
+  }
+
+  @override
+  Future<PuntoServicioModel?> obtenerPuntoPorId(int id) async {
+    await Future.delayed(const Duration(milliseconds: 150));
+    try {
+      return _puntosMock.firstWhere((p) => p.id == id);
+    } catch (_) {
+      return null;
+    }
   }
 
   final List<PuntoServicioModel> _puntosMock = [

@@ -1,15 +1,35 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/datasources/mock_local_datasource.dart';
+import '../../data/datasources/punto_servicio_datasource.dart';
+import '../../data/datasources/remote_datasource.dart';
 import '../../data/repositories/punto_servicio_repository_impl.dart';
 import '../../domain/entities/punto_servicio.dart';
 import '../../domain/repositories/punto_servicio_repository.dart';
 import 'busqueda_provider.dart';
 import 'filtros_provider.dart';
 
-/// Datasource como provider para poder mockearlo/reemplazarlo en tests.
+/// Interruptor mock/API real. En `false` usa el mock local; cámbialo a
+/// `true` (o expón un switch en la UI) para consumir la API de FastAPI
+/// de la Parte 3 sin tocar ninguna otra capa.
+final usarApiRemotaProvider = Provider<bool>((ref) => true);
+
 final mockLocalDatasourceProvider = Provider<MockLocalDatasource>((ref) {
   return MockLocalDatasource();
+});
+
+final remoteDatasourceProvider = Provider<RemoteDatasource>((ref) {
+  return RemoteDatasource();
+});
+
+/// Elige el datasource activo según [usarApiRemotaProvider].
+final puntoServicioDatasourceProvider = Provider<PuntoServicioDatasource>((
+  ref,
+) {
+  final usarApiRemota = ref.watch(usarApiRemotaProvider);
+  return usarApiRemota
+      ? ref.watch(remoteDatasourceProvider)
+      : ref.watch(mockLocalDatasourceProvider);
 });
 
 /// Repositorio expuesto vía su contrato abstracto (domain), no vía su
@@ -17,7 +37,7 @@ final mockLocalDatasourceProvider = Provider<MockLocalDatasource>((ref) {
 final puntoServicioRepositoryProvider = Provider<PuntoServicioRepository>((
   ref,
 ) {
-  final datasource = ref.watch(mockLocalDatasourceProvider);
+  final datasource = ref.watch(puntoServicioDatasourceProvider);
   return PuntoServicioRepositoryImpl(datasource);
 });
 
