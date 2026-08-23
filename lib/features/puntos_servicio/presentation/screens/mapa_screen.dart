@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 
 import '../../domain/entities/punto_servicio.dart';
 import '../providers/punto_servicio_providers.dart';
+import '../widgets/punto_bottom_sheet.dart';
 
 class MapaScreen extends ConsumerWidget {
   const MapaScreen({super.key});
@@ -51,7 +52,7 @@ class MapaScreen extends ConsumerWidget {
       width: 44,
       height: 44,
       child: GestureDetector(
-        onTap: () => _mostrarMarcadorProvisional(context, punto),
+        onTap: () => mostrarTarjetaPunto(context, punto),
         child: Icon(
           Icons.location_on,
           size: 40,
@@ -70,13 +71,5 @@ class MapaScreen extends ConsumerWidget {
       case EstadoPunto.terminado:
         return Colors.green;
     }
-  }
-
-  // Placeholder temporal: en el siguiente paso (Requerimiento 3) esto se
-  // reemplaza por el bottom sheet con la tarjeta de detalle rápido.
-  void _mostrarMarcadorProvisional(BuildContext context, PuntoServicio punto) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${punto.nombre} — ${punto.estado.label}')),
-    );
   }
 }
