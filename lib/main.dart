@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'features/puntos_servicio/presentation/screens/mapa_screen.dart';
+import 'features/puntos_servicio/presentation/screens/home_screen.dart';
 
 void main() {
   runApp(const ProviderScope(child: PuntosServicioApp()));
@@ -16,7 +16,7 @@ class PuntosServicioApp extends StatelessWidget {
       title: 'Puntos de servicio',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(colorSchemeSeed: Colors.indigo, useMaterial3: true),
-      home: const MapaScreen(),
+      home: const HomeScreen(),
     );
   }
 }
