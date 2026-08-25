@@ -102,6 +102,86 @@ api/
 - `GET /puntos/{id}` — un punto (404 si no existe)
 - `POST /intervenciones/verificar`
 
+# Arquitectura del proyecto
+
+```mermaid
+erDiagram
+    ZONA ||--o{ PUNTO_SERVICIO : "ubica"
+    ZONA ||--o{ USUARIO : "asignado a (coordinador)"
+
+    RESPONSABLE ||--o{ PUNTO_RESPONSABLE : "participa en"
+    USUARIO ||--o{ HISTORIAL_ACTIVIDAD : "realiza"
+    USUARIO ||--o{ EVIDENCIA : "sube"
+    USUARIO |o--o| RESPONSABLE : "opcionalmente es"
+    PUNTO_SERVICIO ||--o{ EVIDENCIA : "tiene"
+    PUNTO_SERVICIO ||--o{ HISTORIAL_ACTIVIDAD : "registra"
+    PUNTO_SERVICIO ||--o{ PUNTO_RESPONSABLE : "asigna"
+
+    ZONA {
+        int id PK
+        string codigo
+        string nombre
+    }
+
+    USUARIO {
+        int id PK
+        string nombre
+        string email
+        string password_hash
+        enum rol
+        int zona_id FK
+        datetime fecha_creacion
+    }
+
+    PUNTO_SERVICIO {
+        int id PK
+        string nombre
+        string descripcion
+        enum categoria
+        int zona_id FK
+        decimal latitud
+        decimal longitud
+        decimal costo
+        int personas_atendidas
+        date fecha_inicio
+        date fecha_termino
+        enum estado
+    }
+
+    RESPONSABLE {
+        int id PK
+        string nombre
+        string contacto
+        int usuario_id FK
+    }
+
+    PUNTO_RESPONSABLE {
+        int id PK
+        int punto_servicio_id FK
+        int responsable_id FK
+        enum tipo_asignacion
+    }
+
+    EVIDENCIA {
+        int id PK
+        int punto_servicio_id FK
+        string url_imagen
+        string descripcion
+        datetime fecha_captura
+        int subido_por FK
+    }
+
+    HISTORIAL_ACTIVIDAD {
+        int id PK
+        int punto_servicio_id FK
+        int usuario_id FK
+        enum tipo_accion
+        string tipo_intervencion
+        string descripcion
+        datetime fecha
+    }
+```
+
 ## Dependencias
 
 **Flutter:**
