@@ -1,20 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../domain/entities/punto_servicio.dart';
+import '../widgets/registrar_intervencion_dialog.dart';
 
-/// Pantalla de detalle completo (Requerimiento 4).
-class DetalleScreen extends StatelessWidget {
+/// Pantalla de detalle completo.
+class DetalleScreen extends ConsumerWidget {
   final PuntoServicio punto;
 
   const DetalleScreen({super.key, required this.punto});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final formatoMoneda = NumberFormat.currency(locale: 'es_MX', symbol: r'$');
 
     return Scaffold(
-      appBar: AppBar(title: Text(punto.nombre)),
+      appBar: AppBar(
+        title: Text(punto.nombre),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.fact_check_outlined),
+            tooltip: 'Registrar intervención',
+            onPressed: () => registrarIntervencion(context, ref, punto),
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
